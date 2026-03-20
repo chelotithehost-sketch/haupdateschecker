@@ -6,7 +6,7 @@ import json
 from datetime import datetime
 import google.generativeai as genai
 
-GEMINI_MODEL = "gemini-2.5-flash-lite-preview-06-17"
+GEMINI_MODEL = "gemini-2.5-flash-lite"
 
 SYSTEM_PROMPT = """You are the HostAfrica Internal Communications AI.
 Your job is to analyse fresh website content scraped from HostAfrica's regional websites
