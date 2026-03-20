@@ -95,12 +95,18 @@ with st.sidebar:
     st.image("https://www.hostafrica.com/wp-content/uploads/2022/04/hostafrica-logo.png", width=180)
     st.markdown("### ⚙️ Settings")
 
-    api_key = st.text_input(
-        "Google Gemini API Key",
-        type="password",
-        help="Your Google Gemini API key from https://aistudio.google.com/app/apikey — stored only in session memory, never saved to disk.",
-        placeholder="AIza...",
-    )
+    # Try to load from Streamlit secrets first, fallback to manual input
+    api_key = st.secrets.get("GEMINI_API_KEY", "") if hasattr(st, "secrets") else ""
+
+    if api_key:
+        st.success("🔑 Gemini API key loaded from secrets.", icon="✅")
+    else:
+        api_key = st.text_input(
+            "Google Gemini API Key",
+            type="password",
+            help="No secret found. Enter your key manually, or add GEMINI_API_KEY to Streamlit secrets. Get one at https://aistudio.google.com/app/apikey",
+            placeholder="AIza...",
+        )
 
     st.markdown("---")
     st.markdown("### 🌐 Sites to Scan")
@@ -142,7 +148,7 @@ with st.sidebar:
 # ─────────────────────────────────────────────
 st.markdown("# 🌍 HostAfrica Weekly FYI Generator")
 st.markdown(
-    "Automatically scans HostAfrica's regional websites and generates a polished team FYI report — powered by Claude AI."
+    "Automatically scans HostAfrica's regional websites and generates a polished team FYI report — powered by Google Gemini AI."
 )
 
 tab_scan, tab_report, tab_sites = st.tabs(["🔍 Scan & Generate", "📄 Report", "🗺️ Site Explorer"])
@@ -216,21 +222,21 @@ with tab_scan:
     if not st.session_state.scraping_done:
         st.info("👆 Run a scan first to collect fresh website content.")
     elif not api_key:
-        st.warning("🔑 Enter your Anthropic API key in the sidebar to generate the report.")
+        st.warning("🔑 Enter your Google Gemini API key in the sidebar to generate the report.")
     else:
         col_gen, col_opt = st.columns([2, 1])
         with col_opt:
             tone_note = st.text_area(
-                "Optional: Add context for Claude",
+                "Optional: Add context for Gemini",
                 placeholder="e.g. Focus on new products. Highlight Kenya updates this week.",
                 height=80,
             )
         with col_gen:
             st.markdown(
-                "Claude will analyse the scraped content and write a warm, professional FYI report "
+                "Gemini will analyse the scraped content and write a warm, professional FYI report "
                 "in the style your team loves. 🤖✍️"
             )
-            generate_btn = st.button("✨ Generate Report with Claude", type="primary", use_container_width=True)
+            generate_btn = st.button("✨ Generate Report with Gemini", type="primary", use_container_width=True)
 
         if generate_btn:
             st.markdown("#### 📝 Generating your report...")
@@ -324,7 +330,7 @@ with tab_sites:
     with col_e2:
         if api_key and st.session_state.scraped_data and selected_explorer_site in st.session_state.scraped_data:
             if st.button("🤖 AI Summary of this site", use_container_width=True):
-                with st.spinner("Asking Claude for a summary..."):
+                with st.spinner("Asking Gemini for a summary..."):
                     summary = generate_site_summary(
                         selected_explorer_site,
                         st.session_state.scraped_data[selected_explorer_site],
